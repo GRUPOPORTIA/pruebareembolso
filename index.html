@@ -921,7 +921,7 @@ function eliminarFactura(btn){
 
 function enviarFormulario(){
 
-    fetch("TU_URL_DE_APPS_SCRIPT", {
+    fetch("https://script.google.com/macros/s/AKfycbzok7SpWYoMEl_4vB_QJ0H2IwZTv-7mr_SDJrhDmt-qhWqQXd6Lc6kK4zqdo9dtq5nx/exec", {
         method: "POST",
         body: JSON.stringify({
             empresa: "PORTIA",
@@ -936,6 +936,9 @@ function enviarFormulario(){
     .then(() => {
         alert("Formulario enviado correctamente");
         prepararImpresion();
+    })
+    .catch(error => {
+        alert("Error: " + error);
     });
 
 }
