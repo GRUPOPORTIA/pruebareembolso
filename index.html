@@ -920,8 +920,30 @@ function eliminarFactura(btn){
 }
 
 function enviarFormulario(){
+const gastos = [];
 
-    fetch("https://script.google.com/macros/s/AKfycbzQldG2j7d4PpWsqbW_8bwfxBhNRFERCFQo2BLnfteuwKbvhci7jVBkYuZ0ZmcApDi-Ww/exec", {
+document.querySelectorAll("#cuerpoGastos tr").forEach(fila => {
+
+    gastos.push({
+
+        categoria: fila.querySelector(".categoria").value,
+
+        detalle: fila.querySelector("textarea").value,
+
+        documento: fila.querySelector('td:nth-child(3) input').value,
+
+        neto: fila.querySelector(".neto").value,
+
+        iva: fila.querySelector(".tasa-iva").value == "0.19"
+            ? Math.round((parseFloat(fila.querySelector(".neto").value) || 0) * 0.19)
+            : 0,
+
+        total: fila.querySelector(".total").value.replace(/\./g,"")
+
+    });
+
+});
+    fetch("https://script.google.com/macros/s/AKfycbz9-xduIxCqrb2qqNMr3AmItnpIeeWsCeM2UUUL634iiQX4oUmpJ0qS4vYESDaYJzY3jg/exec", {
         method: "POST",
         mode: "no-cors",
         body: JSON.stringify({
@@ -947,7 +969,8 @@ function enviarFormulario(){
     anticipo: document.getElementById("anticipo").value,
 
     saldo: document.getElementById("saldo").textContent.replace(/\./g, "")
-
+      
+gastos: gastos
 })
     })
     .then(() => {
