@@ -923,6 +923,7 @@ function enviarFormulario(){
 
     fetch("https://script.google.com/macros/s/AKfycbzok7SpWYoMEl_4vB_QJ0H2IwZTv-7mr_SDJrhDmt-qhWqQXd6Lc6kK4zqdo9dtq5nx/exec", {
         method: "POST",
+        mode: "no-cors",
         body: JSON.stringify({
             empresa: "PORTIA",
             nombre: "Prueba",
@@ -932,10 +933,8 @@ function enviarFormulario(){
             total: "50000"
         })
     })
-    .then(res => res.text())
     .then(() => {
         alert("Formulario enviado correctamente");
-        prepararImpresion();
     })
     .catch(error => {
         alert("Error: " + error);
