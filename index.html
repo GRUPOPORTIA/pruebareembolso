@@ -925,19 +925,40 @@ function enviarFormulario(){
         method: "POST",
         mode: "no-cors",
         body: JSON.stringify({
-            empresa: "PORTIA",
-            nombre: "Prueba",
-            rut: "11111111-1",
-            mes: "Julio",
-            anio: "2026",
-            total: "50000"
+
+            empresa: document.getElementById("empresa").options[
+                document.getElementById("empresa").selectedIndex
+            ].text,
+
+            centroCosto: document.getElementById("centroCosto").value,
+
+            nombre: document.getElementById("nombre").value,
+
+            rut: document.getElementById("rut").value,
+
+            mes: document.getElementById("periodo").value,
+
+            anio: document.getElementById("anio").value,
+
+            zona: document.getElementById("zona").value,
+
+            total: document.getElementById("totalGastos").innerText,
+
+            anticipo: document.getElementById("anticipo").value
+
         })
     })
     .then(() => {
+
         alert("Formulario enviado correctamente");
+
+        prepararImpresion();
+
     })
     .catch(error => {
-        alert("Error: " + error);
+
+        alert("Error al enviar: " + error);
+
     });
 
 }
