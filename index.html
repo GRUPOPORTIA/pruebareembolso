@@ -926,27 +926,29 @@ function enviarFormulario(){
         mode: "no-cors",
         body: JSON.stringify({
 
-            empresa: document.getElementById("empresa").options[
-                document.getElementById("empresa").selectedIndex
-            ].text,
+    empresa: document.getElementById("empresa").options[
+        document.getElementById("empresa").selectedIndex
+    ].text,
 
-            centroCosto: document.getElementById("centroCosto").value,
+    centroCosto: document.getElementById("centroCosto").value,
 
-            nombre: document.getElementById("nombre").value,
+    nombre: document.getElementById("nombre").value,
 
-            rut: document.getElementById("rut").value,
+    rut: document.getElementById("rut").value,
 
-            mes: document.getElementById("periodo").value,
+    mes: document.getElementById("periodo").value,
 
-            anio: document.getElementById("anio").value,
+    anio: document.getElementById("anio").value,
 
-            zona: document.getElementById("zona").value,
+    zona: document.getElementById("zona").value,
 
-            total: document.getElementById("totalGastos").innerText,
+    total: document.getElementById("totalGastos").textContent.replace(/\./g, ""),
 
-            anticipo: document.getElementById("anticipo").value
+    anticipo: document.getElementById("anticipo").value,
 
-        })
+    saldo: document.getElementById("saldo").textContent.replace(/\./g, "")
+
+})
     })
     .then(() => {
 
