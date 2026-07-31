@@ -977,6 +977,10 @@ function generarPdfDesdeFormulario(){
 
     actualizarMirrors();
 
+    // Importante: si la página está con scroll, html2canvas puede capturar
+    // ese espacio vacío de arriba como una página en blanco. Forzamos scroll 0.
+    window.scrollTo(0, 0);
+
     const elemento = document.querySelector('.sheet');
 
     const opciones = {
@@ -986,6 +990,9 @@ function generarPdfDesdeFormulario(){
         html2canvas: {
             scale: 2,
             useCORS: true,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: document.documentElement.scrollWidth,
             onclone: function(clonedDoc){
 
                 const clon = clonedDoc.querySelector('.sheet');
@@ -1032,7 +1039,8 @@ function generarPdfDesdeFormulario(){
                 });
             }
         },
-        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.factura', '.firma-section', '.resumen'] }
     };
 
     return html2pdf().set(opciones).from(elemento).outputPdf('datauristring').then(function(pdfDataUri){
