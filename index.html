@@ -1099,7 +1099,7 @@ function enviarFormulario(){
         if(resultado.status === "ok"){
             let mensaje = "Formulario enviado correctamente.\nN° de rendición: " + resultado.idRendicion;
             if(resultado.correoEnviado === false){
-                mensaje += "\n\n⚠️ Se registró la rendición, pero hubo un problema al enviar el correo con el PDF. Avisa a finanzas.";
+                mensaje += "\n\n⚠️ Se registró la rendición, pero hubo un problema al enviar el correo con el PDF. Avisa a finanzas.\n\nDetalle técnico: " + (resultado.errorCorreo || "sin detalle");
             }
             alert(mensaje);
             prepararImpresion();
