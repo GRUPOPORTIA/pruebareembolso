@@ -658,10 +658,24 @@ document.addEventListener("input", function(e){
       <div class="cap">Nombre, Firma y Rut</div>
     </div>
     <div class="banco-info oculto" id="bancoFavor">
-      <label>En caso de saldo a favor — Depositar en:</label>
-      <input type="text" placeholder="N° de cuenta">
+      <label>Para transferirte el reembolso, indica tu cuenta:</label>
+      <input type="text" id="cuentaFavor" placeholder="N° de cuenta">
       <label>Banco:</label>
-      <input type="text" placeholder="Nombre del banco">
+      <select id="bancoFavorSelect">
+        <option value="">Seleccione banco</option>
+        <option value="001">Banco de Chile</option>
+        <option value="012">Banco Estado</option>
+        <option value="037">Banco Santander</option>
+        <option value="016">Banco de Crédito e Inversiones (BCI)</option>
+        <option value="014">Scotiabank Chile</option>
+        <option value="039">Banco Itaú Chile</option>
+        <option value="051">Banco Falabella</option>
+        <option value="053">Banco Ripley</option>
+        <option value="028">Banco BICE</option>
+        <option value="055">Banco Consorcio</option>
+        <option value="009">Banco Internacional</option>
+        <option value="063">Tenpo Bank Chile</option>
+      </select>
     </div>
     <div class="banco-info oculto" id="bancoContra">
       <label>Datos de Transferencia para devolución:</label>
@@ -690,7 +704,7 @@ document.addEventListener("input", function(e){
   </div>
 
   <div style="text-align:center;margin-top:10px;">
-    <button onclick="enviarFormulario()">Enviar formulario</button>
+    <button id="btnEnviar" onclick="enviarFormulario()">Enviar formulario</button>
   </div>
 
 </div>
@@ -786,19 +800,24 @@ function recalcular(){
     saldoLabelEl.textContent = 'Saldo $';
     saldoEl.textContent = '—';
     saldoEl.classList.remove('en-contra');
+    saldoEl.dataset.tipo = 'sin_anticipo';
+    saldoEl.dataset.valor = '0';
     actualizarBancoInfo('favor');
     return;
 }
 
   const saldo = anticipo - suma;
   saldoEl.textContent = fmt.format(Math.abs(saldo));
+  saldoEl.dataset.valor = String(saldo);
   if(saldo < 0){
     saldoLabelEl.textContent = 'Saldo (a favor) $';
     saldoEl.classList.remove('en-contra');
+    saldoEl.dataset.tipo = 'favor';
     actualizarBancoInfo('favor');
   } else {
     saldoLabelEl.textContent = 'Saldo (en contra) $';
     saldoEl.classList.add('en-contra');
+    saldoEl.dataset.tipo = 'contra';
     actualizarBancoInfo('contra');
   }
 }
@@ -881,6 +900,31 @@ recalcular();
 </script>
 
 <script>
+function comprimirImagen(dataUrl, maxAncho, calidad){
+    return new Promise(function(resolve){
+        const img = new Image();
+        img.onload = function(){
+            let ancho = img.width;
+            let alto = img.height;
+
+            if(ancho > maxAncho){
+                alto = Math.round(alto * (maxAncho / ancho));
+                ancho = maxAncho;
+            }
+
+            const canvas = document.createElement("canvas");
+            canvas.width = ancho;
+            canvas.height = alto;
+
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, ancho, alto);
+
+            resolve(canvas.toDataURL("image/jpeg", calidad));
+        };
+        img.src = dataUrl;
+    });
+}
+
 function mostrarFacturas(event){
 
     const contenedor = document.getElementById("contenedorFacturas");
@@ -893,16 +937,20 @@ function mostrarFacturas(event){
 
         lector.onload = function(e){
 
-            const div = document.createElement("div");
-            div.className = "factura";
+            comprimirImagen(e.target.result, 1600, 0.75).then(function(dataUrlComprimida){
 
-            div.innerHTML = `
-                <button type="button" class="factura-eliminar" onclick="eliminarFactura(this)">×</button>
-                <img src="${e.target.result}">
-                <p>${archivo.name}</p>
-            `;
+                const div = document.createElement("div");
+                div.className = "factura";
 
-            contenedor.appendChild(div);
+                div.innerHTML = `
+                    <button type="button" class="factura-eliminar" onclick="eliminarFactura(this)">×</button>
+                    <img src="${dataUrlComprimida}">
+                    <p>${archivo.name}</p>
+                `;
+
+                contenedor.appendChild(div);
+
+            });
 
         };
 
@@ -919,71 +967,155 @@ function eliminarFactura(btn){
     btn.closest('.factura').remove();
 }
 
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbw9p6SrPwzvJAiaDwf4o8DemlO07OmtUq237GwMYgKsn0cWc49u1V_dv6hDhW22p9Y/exec";
+
+function validarFormulario(){
+    if(!document.getElementById("empresa").value){
+        return "Debes seleccionar una empresa.";
+    }
+    if(!document.getElementById("centroCosto").value){
+        return "Debes seleccionar un centro de costo.";
+    }
+    if(!document.getElementById("nombre").value.trim()){
+        return "Debes ingresar tu nombre.";
+    }
+    if(!document.getElementById("rut").value.trim()){
+        return "Debes ingresar tu RUT.";
+    }
+
+    const bancoFavorVisible = !document.getElementById("bancoFavor").classList.contains("oculto");
+    if(bancoFavorVisible){
+        if(!document.getElementById("cuentaFavor").value.trim()){
+            return "Debes ingresar tu N° de cuenta para el reembolso.";
+        }
+        if(!document.getElementById("bancoFavorSelect").value){
+            return "Debes seleccionar el banco para el reembolso.";
+        }
+    }
+
+    return null;
+}
+
 function enviarFormulario(){
-const gastos = [];
 
-document.querySelectorAll("#cuerpoGastos tr").forEach(fila => {
+    const errorValidacion = validarFormulario();
+    if(errorValidacion){
+        alert(errorValidacion);
+        return;
+    }
 
-    gastos.push({
+    const btn = document.getElementById("btnEnviar");
+    btn.disabled = true;
+    const textoOriginal = btn.textContent;
+    btn.textContent = "Enviando...";
 
-        categoria: fila.querySelector(".categoria").value,
+    const gastos = [];
 
-        detalle: fila.querySelector("textarea").value,
+    document.querySelectorAll("#cuerpoGastos tr").forEach(fila => {
 
-        documento: fila.querySelector('td:nth-child(3) input').value,
+        gastos.push({
 
-        neto: fila.querySelector(".neto").value,
+            categoria: fila.querySelector(".categoria").value,
 
-        iva: fila.querySelector(".tasa-iva").value == "0.19"
-            ? Math.round((parseFloat(fila.querySelector(".neto").value) || 0) * 0.19)
-            : 0,
+            detalle: fila.querySelector("textarea").value,
 
-        total: fila.querySelector(".total").value.replace(/\./g,"")
+            documento: fila.querySelector('td:nth-child(3) input').value,
+
+            neto: fila.querySelector(".neto").value,
+
+            iva: fila.querySelector(".tasa-iva").value == "0.19"
+                ? Math.round((parseFloat(fila.querySelector(".neto").value) || 0) * 0.19)
+                : 0,
+
+            total: fila.querySelector(".total").value.replace(/\./g,"")
+
+        });
 
     });
 
-});
-    fetch("https://script.google.com/macros/s/AKfycbwRdaebkRHIAYGuAN3_Gqf_Ip3Tjc8OYg7StdvMh4qS4U0vz2J_pUQcJdVL7KsFJnku2A/exec", {
+    // Recolectar las facturas ya cargadas en pantalla (imágenes en base64)
+    const facturas = [];
+    document.querySelectorAll("#contenedorFacturas .factura").forEach(div => {
+        const img = div.querySelector("img");
+        const nombre = div.querySelector("p")?.textContent || "factura";
+        if(img && img.src){
+            facturas.push({
+                nombre: nombre,
+                base64: img.src
+            });
+        }
+    });
+
+    fetch(URL_APPS_SCRIPT, {
         method: "POST",
-        mode: "no-cors",
         body: JSON.stringify({
 
-    empresa: document.getElementById("empresa").options[
-        document.getElementById("empresa").selectedIndex
-    ].text,
+            empresa: document.getElementById("empresa").options[
+                document.getElementById("empresa").selectedIndex
+            ].text,
 
-    centroCosto: document.getElementById("centroCosto").value,
+            empresaCodigo: document.getElementById("empresa").value,
 
-    nombre: document.getElementById("nombre").value,
+            centroCosto: document.getElementById("centroCosto").value,
 
-    rut: document.getElementById("rut").value,
+            nombre: document.getElementById("nombre").value,
 
-    mes: document.getElementById("periodo").value,
+            rut: document.getElementById("rut").value,
 
-    anio: document.getElementById("anio").value,
+            mes: document.getElementById("periodo").value,
 
-    zona: document.getElementById("zona").value,
+            anio: document.getElementById("anio").value,
 
-    total: document.getElementById("totalGastos").textContent.replace(/\./g, ""),
+            zona: document.getElementById("zona").value,
 
-    anticipo: document.getElementById("anticipo").value,
+            total: document.getElementById("totalGastos").textContent.replace(/\./g, ""),
 
-    saldo: document.getElementById("saldo").textContent.replace(/\./g, ""),
-      
-gastos: gastos
-})
+            anticipo: document.getElementById("anticipo").value,
+
+            saldo: document.getElementById("saldo").textContent.replace(/\./g, ""),
+
+            tipoSaldo: document.getElementById("saldo").dataset.tipo || "",
+
+            montoTransferencia: document.getElementById("saldo").dataset.tipo === "sin_anticipo"
+                ? document.getElementById("totalGastos").textContent.replace(/\./g, "")
+                : Math.abs(parseFloat(document.getElementById("saldo").dataset.valor || "0")),
+
+            cuentaBancaria: document.getElementById("cuentaFavor")?.value || "",
+
+            bancoDestino: document.getElementById("bancoFavorSelect")?.value
+                ? document.getElementById("bancoFavorSelect").selectedOptions[0].text
+                : "",
+
+            bancoCodigoSBIF: document.getElementById("bancoFavorSelect")?.value || "",
+
+            gastos: gastos,
+
+            facturas: facturas
+        })
     })
-    .then(() => {
+    .then(response => response.json())
+    .then(resultado => {
 
-        alert("Formulario enviado correctamente");
-
-        prepararImpresion();
+        if(resultado.status === "ok"){
+            let mensaje = "Formulario enviado correctamente.\nN° de rendición: " + resultado.idRendicion;
+            if(resultado.correoEnviado === false){
+                mensaje += "\n\n⚠️ Se registró la rendición, pero hubo un problema al enviar el correo con el PDF. Avisa a finanzas.";
+            }
+            alert(mensaje);
+            prepararImpresion();
+        } else {
+            alert("No se pudo enviar el formulario:\n" + resultado.message);
+        }
 
     })
     .catch(error => {
 
-        alert("Error al enviar: " + error);
+        alert("Error de conexión al enviar el formulario. Revisa tu internet e intenta nuevamente.\n\nDetalle técnico: " + error);
 
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
     });
 
 }
