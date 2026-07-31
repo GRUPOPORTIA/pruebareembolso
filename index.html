@@ -710,7 +710,7 @@ document.addEventListener("input", function(e){
 </div>
 
 <script>
-function prepararImpresion(){
+function actualizarMirrors(){
 
  const empresaSel = document.getElementById('empresa');
   document.getElementById('empresa-mirror').textContent = empresaSel.options[empresaSel.selectedIndex]?.text || '';
@@ -724,6 +724,10 @@ function prepararImpresion(){
       textarea.style.height = textarea.scrollHeight + "px";
   });
 
+}
+
+function prepararImpresion(){
+  actualizarMirrors();
   window.print();
 }
 
@@ -967,7 +971,74 @@ function eliminarFactura(btn){
     btn.closest('.factura').remove();
 }
 
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwKamDRj1RplhsiUkU5bF4gsuzaKmwkPsVFG6tP-VljX70jI1fe-W5yq6k0QpYbDBgVMA/exec";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyNT6DeAGUyuvoysM9jPzXM1RuHf6iaqig4OSpncwrZ2r5CCvNGBlOXzeOCDK102fiKpw/exec";
+
+function generarPdfDesdeFormulario(){
+
+    actualizarMirrors();
+
+    const elemento = document.querySelector('.sheet');
+
+    const opciones = {
+        margin: 0.3,
+        filename: 'rendicion.pdf',
+        image: { type: 'jpeg', quality: 0.85 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            onclone: function(clonedDoc){
+
+                const clon = clonedDoc.querySelector('.sheet');
+                if(!clon) return;
+
+                // Ocultar botones y controles que no deben salir en el PDF
+                clon.querySelectorAll(
+                    '.toolbar button.add, .row-actions, .print-btn, .factura-eliminar, .btn-adjuntar, #facturas, .no-print'
+                ).forEach(function(el){
+                    el.style.display = 'none';
+                });
+
+                const botonEnviar = clon.querySelector('#btnEnviar');
+                if(botonEnviar && botonEnviar.parentElement){
+                    botonEnviar.parentElement.style.display = 'none';
+                }
+
+                // Reemplazar cada <select> por su texto seleccionado (html2canvas no lee selects)
+                clon.querySelectorAll('select').forEach(function(sel){
+                    const span = clonedDoc.createElement('span');
+                    span.textContent = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : '';
+                    sel.parentNode.replaceChild(span, sel);
+                });
+
+                // Reemplazar cada <textarea> por su texto (preservando el salto de línea)
+                clon.querySelectorAll('textarea').forEach(function(ta){
+                    const div = clonedDoc.createElement('div');
+                    div.textContent = ta.value;
+                    div.style.whiteSpace = 'pre-wrap';
+                    div.style.fontSize = '12px';
+                    ta.parentNode.replaceChild(div, ta);
+                });
+
+                // Reemplazar cada <input> de texto/número por su valor como texto plano
+                clon.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(inp){
+                    const span = clonedDoc.createElement('span');
+                    span.textContent = inp.value;
+                    inp.parentNode.replaceChild(span, inp);
+                });
+
+                // Mostrar los "espejos" de impresión (empresa, período, nombre, etc.)
+                clon.querySelectorAll('.print-mirror').forEach(function(m){
+                    m.style.display = 'block';
+                });
+            }
+        },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    return html2pdf().set(opciones).from(elemento).outputPdf('datauristring').then(function(pdfDataUri){
+        return pdfDataUri.split(',')[1]; // solo el base64, sin el prefijo data:...
+    });
+}
 
 function validarFormulario(){
     if(!document.getElementById("empresa").value){
@@ -996,7 +1067,7 @@ function validarFormulario(){
     return null;
 }
 
-function enviarFormulario(){
+async function enviarFormulario(){
 
     const errorValidacion = validarFormulario();
     if(errorValidacion){
@@ -1007,7 +1078,7 @@ function enviarFormulario(){
     const btn = document.getElementById("btnEnviar");
     btn.disabled = true;
     const textoOriginal = btn.textContent;
-    btn.textContent = "Enviando...";
+    btn.textContent = "Generando PDF...";
 
     const gastos = [];
 
@@ -1057,6 +1128,16 @@ function enviarFormulario(){
         }
     });
 
+    // Generar el PDF con el diseño real del formulario (con manejo de error/fallback)
+    let pdfBase64 = null;
+    try {
+        pdfBase64 = await generarPdfDesdeFormulario();
+    } catch(errPdf){
+        console.error("No se pudo generar el PDF en el navegador, se usará el PDF de respaldo del servidor.", errPdf);
+    }
+
+    btn.textContent = "Enviando...";
+
     fetch(URL_APPS_SCRIPT, {
         method: "POST",
         body: JSON.stringify({
@@ -1101,7 +1182,9 @@ function enviarFormulario(){
 
             gastos: gastos,
 
-            facturas: facturas
+            facturas: facturas,
+
+            pdfBase64: pdfBase64
         })
     })
     .then(response => response.json())
