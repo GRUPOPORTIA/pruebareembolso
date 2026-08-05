@@ -248,6 +248,15 @@
     padding-top:4px;
     color:#4b5563;
   }
+  .firma-box .firma-escrita{
+    flex:1;
+    border:none;
+    background:transparent;
+    text-align:center;
+    font:inherit;
+    padding:0;
+    width:100%;
+  }
   .banco-info{
     flex:1;
     font-size:12px;
@@ -513,10 +522,10 @@ document.addEventListener("input", function(e){
         <div style="display:flex;gap:6px;">
           <select id="periodo" style="width:60%;">
             <option value="">Mes</option>
-            <option>Enero</option><option>Febrero</option><option>Marzo</option>
-            <option>Abril</option><option>Mayo</option><option>Junio</option>
-            <option>Julio</option><option>Agosto</option><option>Septiembre</option>
-            <option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+            <option>ENERO</option><option>FEBRERO</option><option>MARZO</option>
+            <option>ABRIL</option><option>MAYO</option><option>JUNIO</option>
+            <option>JULIO</option><option>AGOSTO</option><option>SEPTIEMBRE</option>
+            <option>OCTUBRE</option><option>NOVIEMBRE</option><option>DICIEMBRE</option>
           </select>
           <select id="anio" style="width:40%;">
             <option value="">Año</option>
@@ -528,29 +537,29 @@ document.addEventListener("input", function(e){
       <td>
         <select id="zona">
           <option value="">Seleccione región</option>
-          <option>Arica y Parinacota</option>
-          <option>Tarapacá</option>
-          <option>Antofagasta</option>
-          <option>Atacama</option>
-          <option>Coquimbo</option>
-          <option>Valparaíso</option>
-          <option>Metropolitana de Santiago</option>
-          <option>Libertador General Bernardo O'Higgins</option>
-          <option>Maule</option>
-          <option>Ñuble</option>
-          <option>Biobío</option>
-          <option>La Araucanía</option>
-          <option>Los Ríos</option>
-          <option>Los Lagos</option>
-          <option>Aysén del General Carlos Ibáñez del Campo</option>
-          <option>Magallanes y de la Antártica Chilena</option>
+          <option>ARICA Y PARINACOTA</option>
+          <option>TARAPACÁ</option>
+          <option>ANTOFAGASTA</option>
+          <option>ATACAMA</option>
+          <option>COQUIMBO</option>
+          <option>VALPARAÍSO</option>
+          <option>METROPOLITANA DE SANTIAGO</option>
+          <option>LIBERTADOR GENERAL BERNARDO O'HIGGINS</option>
+          <option>MAULE</option>
+          <option>ÑUBLE</option>
+          <option>BIOBÍO</option>
+          <option>LA ARAUCANÍA</option>
+          <option>LOS RÍOS</option>
+          <option>LOS LAGOS</option>
+          <option>AYSÉN DEL GENERAL CARLOS IBÁÑEZ DEL CAMPO</option>
+          <option>MAGALLANES Y DE LA ANTÁRTICA CHILENA</option>
         </select>
         <span class="print-mirror" id="zona-mirror"></span>
       </td>
     </tr>
     <tr>
       <td class="label">Nombre</td>
-      <td><input type="text" id="nombre" placeholder="Ingrese nombre completo"><span class="print-mirror" id="nombre-mirror"></span></td>
+      <td><input type="text" id="nombre" placeholder="Ingrese nombre completo" oninput="forzarMayusculas(this)"><span class="print-mirror" id="nombre-mirror"></span></td>
       <td class="label">Rut</td>
       <td><input type="text" id="rut" placeholder="00.000.000-0" maxlength="12" oninput="formatearRut(this)"><span class="print-mirror" id="rut-mirror"></span></td>
     </tr>
@@ -600,31 +609,31 @@ document.addEventListener("input", function(e){
 
   <div class="firma-section">
     <div class="firma-box">
-      <div style="flex:1;"></div>
+      <input type="text" class="firma-escrita" oninput="forzarMayusculas(this)">
       <div class="cap">V°B°</div>
     </div>
     <div class="firma-box">
-      <div style="flex:1;"></div>
+      <input type="text" class="firma-escrita" oninput="forzarMayusculas(this)">
       <div class="cap">Nombre, Firma y Rut</div>
     </div>
     <div class="banco-info oculto" id="bancoFavor">
       <label>Para transferirte el reembolso, indica tu cuenta:</label>
-      <input type="text" id="cuentaFavor" placeholder="N° de cuenta">
+      <input type="text" id="cuentaFavor" placeholder="N° de cuenta" oninput="forzarMayusculas(this)">
       <label>Banco:</label>
       <select id="bancoFavorSelect">
         <option value="">Seleccione banco</option>
-        <option value="001">Banco de Chile</option>
-        <option value="012">Banco Estado</option>
-        <option value="037">Banco Santander</option>
-        <option value="016">Banco de Crédito e Inversiones (BCI)</option>
-        <option value="014">Scotiabank Chile</option>
-        <option value="039">Banco Itaú Chile</option>
-        <option value="051">Banco Falabella</option>
-        <option value="053">Banco Ripley</option>
-        <option value="028">Banco BICE</option>
-        <option value="055">Banco Consorcio</option>
-        <option value="009">Banco Internacional</option>
-        <option value="063">Tenpo Bank Chile</option>
+        <option value="001">BANCO DE CHILE</option>
+        <option value="012">BANCO ESTADO</option>
+        <option value="037">BANCO SANTANDER</option>
+        <option value="016">BANCO DE CRÉDITO E INVERSIONES (BCI)</option>
+        <option value="014">SCOTIABANK CHILE</option>
+        <option value="039">BANCO ITAÚ CHILE</option>
+        <option value="051">BANCO FALABELLA</option>
+        <option value="053">BANCO RIPLEY</option>
+        <option value="028">BANCO BICE</option>
+        <option value="055">BANCO CONSORCIO</option>
+        <option value="009">BANCO INTERNACIONAL</option>
+        <option value="063">TENPO BANK CHILE</option>
       </select>
     </div>
     <div class="banco-info oculto" id="bancoContra">
@@ -681,6 +690,43 @@ function prepararImpresion(){
   window.print();
 }
 
+// Deja el formulario como recién abierto. Se llama SIEMPRE después de un
+// envío exitoso (la rendición ya quedó guardada en el servidor), sin
+// importar si la persona imprimió/guardó el PDF o canceló el diálogo.
+function resetearFormulario(){
+  document.getElementById('empresa').value = '';
+  document.getElementById('centroCosto').value = '';
+  document.getElementById('centroCostoCodigo').value = '';
+  document.getElementById('periodo').value = '';
+  document.getElementById('anio').value = '';
+  document.getElementById('zona').value = '';
+  document.getElementById('nombre').value = '';
+  document.getElementById('rut').value = '';
+  document.getElementById('anticipo').value = '';
+  document.getElementById('cuentaFavor').value = '';
+  document.getElementById('bancoFavorSelect').value = '';
+  document.getElementById('contenedorFacturas').innerHTML = '';
+
+  document.querySelectorAll('.firma-escrita').forEach(function(campo){
+    campo.value = '';
+  });
+
+  document.getElementById('cuerpoGastos').innerHTML = '';
+  crearFila('');
+  crearFila('');
+  crearFila('');
+  crearFila('');
+
+  // Deja el encabezado igual que al abrir el formulario por primera vez
+  // (sin ningún logo mientras no se elija una empresa).
+  document.getElementById('logoPortia').style.display = 'none';
+  document.getElementById('logoAgla').style.display = 'none';
+  document.getElementById('subEmpresa').textContent = 'COMERCIAL PORTIA LTDA.';
+
+  recalcular();
+  actualizarMirrors();
+}
+
 function crearFila(glosaFija){
   const tr = document.createElement('tr');
   tr.innerHTML = `
@@ -696,9 +742,9 @@ function crearFila(glosaFija){
       </select>
     </td>
     <td class="${glosaFija ? 'glosa-fija' : ''}">
-    <textarea ${glosaFija ? 'readonly' : ''}>${glosaFija || ''}</textarea>
+    <textarea ${glosaFija ? 'readonly' : ''} oninput="forzarMayusculas(this)">${glosaFija || ''}</textarea>
 </td>
-    <td><input type="text"></td>
+    <td><input type="text" oninput="forzarMayusculas(this)"></td>
     <td><input type="number" class="neto" min="0" step="1" value="0" oninput="recalcular()"></td>
     <td class="row-actions no-print"><button onclick="eliminarFila(this)">×</button></td>
   `;
@@ -791,6 +837,17 @@ function formatearRut(input){
   input.value = cuerpo ? (cuerpo + '-' + dv) : dv;
 }
 
+// Todas las respuestas del formulario van en mayúsculas. Se conserva la
+// posición del cursor para que escribir no "salte" al final del campo.
+function forzarMayusculas(el){
+  const inicio = el.selectionStart;
+  const fin = el.selectionEnd;
+  el.value = el.value.toUpperCase();
+  if(inicio !== null && fin !== null){
+    el.setSelectionRange(inicio, fin);
+  }
+}
+
 function cambiarEmpresa(){
   const emp = document.getElementById('empresa').value;
   const logoPortia = document.getElementById('logoPortia');
@@ -848,7 +905,7 @@ const CENTROS_COSTO = [
   { codigo: "236", nombre: "COMERCIAL DE CAMPO S.A." },
   { codigo: "335", nombre: "DISTRIBUIDORA KOSLAN SPA" },
   { codigo: "346", nombre: "FORUS S.A." },
-  { codigo: "333", nombre: "ICONEX (Chile) SpA." },
+  { codigo: "333", nombre: "ICONEX (CHILE) SPA." },
   { codigo: "351", nombre: "LABORATORIOS MAVER S.A." },
   { codigo: "365", nombre: "COMERCIAL KHATAR SPA" },
   { codigo: "362", nombre: "AGRICOLA FUNGHI CHILE SPA" },
@@ -917,6 +974,7 @@ const CENTROS_COSTO = [
   }
 
   input.addEventListener('input', function(){
+    forzarMayusculas(input);
     // Si escribe manualmente, el código ya no corresponde con certeza al texto
     // hasta que elija de nuevo una opción de la lista.
     inputCodigo.value = '';
@@ -1254,6 +1312,11 @@ async function enviarFormulario(){
             }
             alert(mensaje);
             prepararImpresion();
+            // La rendición YA quedó registrada en el servidor. Se limpia el
+            // formulario apenas se cierra el diálogo de impresión —imprima,
+            // guarde o cancele— para que nadie edite estos datos pensando
+            // que aún no se enviaron y termine mandando una rendición duplicada.
+            resetearFormulario();
         } else {
             alert("No se pudo enviar el formulario:\n" + resultado.message);
         }
