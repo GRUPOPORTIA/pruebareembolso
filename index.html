@@ -70,6 +70,28 @@
   }
   table.meta td.costo-cell{
     width:230px;
+    position:relative;
+  }
+  .autocomplete-list{
+    display:none;
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    z-index:20;
+    background:#fff;
+    border:1px solid var(--line-light);
+    max-height:220px;
+    overflow-y:auto;
+    box-shadow:0 4px 10px rgba(0,0,0,.15);
+  }
+  .autocomplete-list div{
+    padding:6px 8px;
+    font-size:12.5px;
+    cursor:pointer;
+  }
+  .autocomplete-list div:hover{
+    background:var(--accent);
   }
   select, input[type=text], input[type=number]{
     font-family:inherit;
@@ -120,20 +142,6 @@
   table.gastos td input:focus, table.gastos td select:focus{
     outline:2px solid var(--portia-green);
     border-radius:2px;
-  }
-  .iva-cell{
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-  }
-  .iva-cell select{
-    font-size:11px;
-    padding:2px;
-  }
-  td.readonly-cell input{
-    background:var(--panel);
-    color:#374151;
-    font-weight:600;
   }
   td.glosa-fija{
     background:var(--panel);
@@ -266,6 +274,7 @@
     .toolbar button.add, .row-actions, .print-btn{display:none !important;}
     select, input{border:none !important;}
     table.meta select, table.meta input[type=text]{display:none !important;}
+    .autocomplete-list{display:none !important;}
 
     .print-mirror{
       display:block !important;
@@ -490,67 +499,11 @@ document.addEventListener("input", function(e){
         </select>
         <span class="print-mirror" id="empresa-mirror"></span>
       </td>
-      <td class="label">Centro de Costo<br><span style="font-weight:400;font-size:11px;">(marcar sólo uno)</span></td>
+      <td class="label">Centro de Costo<br><span style="font-weight:400;font-size:11px;">(escriba para buscar)</span></td>
       <td class="costo-cell">
-        <select id="centroCosto">
-          <option value="">Seleccione centro de costo</option>
-          <option>54 - COMERCIAL PORTIA LIMITADA</option>
-          <option>01 - EST AGLA S.A.</option>
-          <option>61 - ESSITY CHILE S.A.</option>
-          <option>348 - AVENCO ASESORÍA Y GESTIÓN INMOBILIARIA SPA</option>
-          <option>261 - EL GOLFO COMERCIAL S.A.</option>
-          <option>36 - EMPRESAS DEMARIA S.A.</option>
-          <option>341 - INMAR SPA</option>
-          <option>99 - MIGUEL MARITANO, IND. DE JABONES S.A.</option>
-          <option>58 - VIÑA COUSIÑO MACUL</option>
-          <option>151 - COORDINADORES COMPARTIDOS</option>
-          <option>3 - MAR DEL SUR SPA</option>
-          <option>26 - LEVI STRAUSS CHILE LIMITADA</option>
-          <option>24 - LEVI STRAUSS CHILE LIMITADA (ADM)</option>
-          <option>25 - LEVI STRASS CHILE LIMITADA (DOCKERS)</option>
-          <option>312 - WOM S.A.</option>
-          <option>313 - AGROCOMERCIAL CODIGUA SPA</option>
-          <option>118 - SHERWIN WILLIAMS CHILE S.A.</option>
-          <option>289 - VIÑA VALDIVIESO S.A.</option>
-          <option>20 - AISLANTES NACIONALES SPA</option>
-          <option>19 - CLOROX CHILE S.A.</option>
-          <option>17 - HENKEL CHILE LTDA.</option>
-          <option>16 - HENKEL CHILE LTDA. (GESTOR VENTAS)</option>
-          <option>100 - INDUSTRIA DE ALIMENTOS TRENDY S.A.</option>
-          <option>225 - SURLAT COMERCIAL S.A.</option>
-          <option>174 - INTCOMEX CHILE S.A.</option>
-          <option>160 - AGUASIN SPA</option>
-          <option>337 - CHERY OMODA & JAECOO MOTOR SPA</option>
-          <option>236 - COMERCIAL DE CAMPO S.A.</option>
-          <option>335 - DISTRIBUIDORA KOSLAN SPA</option>
-          <option>346 - FORUS S.A.</option>
-          <option>333 - ICONEX (Chile) SpA.</option>
-          <option>351 - LABORATORIOS MAVER S.A.</option>
-          <option>365 - COMERCIAL KHATAR SPA</option>
-          <option>362 - AGRICOLA FUNGHI CHILE SPA</option>
-          <option>327 - FABRICA DE CHOCOLATES LA IBERICA S.A</option>
-          <option>344 - INTERNATIONAL APPAREL CORPORATION CHILE SPA</option>
-          <option>299 - THE NATURE FACTORY SPA</option>
-          <option>367 - IAC DOCKERS</option>
-          <option>332 - COMERCIALIZADORA ARENYS FOOD SPA</option>
-          <option>328 - LANDIROCD SPA</option>
-          <option>350 - RENNER SAYERLACK CHILE SPA</option>
-          <option>352 - NUTRICO.IO CHILE SPA</option>
-          <option>300 - FPC TISSUE S.A.</option>
-          <option>358 - EMPORIO ALEMAN SA</option>
-          <option>349 - BARRON VIEYRA INTERNATIONAL SPA</option>
-          <option>355 - AWITA SPA</option>
-          <option>140 - COMERCIALIZADORA NOVAVERDE LTDA</option>
-          <option>290 - GARMENDIA MACUS S.A.</option>
-          <option>315 - LABORATORIO DENTAID S.A.</option>
-          <option>12 - SIGNIFY CHILENA S.A.</option>
-          <option>172 - VERSUNI CHILE S.A.</option>
-          <option>347 - YADATEX CHILE SPA</option>
-          <option>149 - PHILIPS CHILENA S.A.</option>
-          <option>39 - PROA S.A.</option>
-          <option>354 - DISTRIBUIDORA VERGIO SPA</option>
-          <option>178 - DITZLER CHILE LTDA.</option>
-        </select>
+        <input type="text" id="centroCosto" placeholder="Escriba para buscar..." autocomplete="off">
+        <input type="hidden" id="centroCostoCodigo">
+        <div id="centroCostoOpciones" class="autocomplete-list"></div>
         <span class="print-mirror" id="centroCosto-mirror"></span>
       </td>
     </tr>
@@ -611,26 +564,23 @@ document.addEventListener("input", function(e){
   <table class="gastos" id="tablaGastos">
     <thead>
       <tr>
-        <th style="width:18%;">Categoría</th>
-        <th style="width:22%;">Detalle</th>
-        <th style="width:16%;">N° Boleta/Factura</th>
-        <th style="width:14%;">Valor Neto</th>
-        <th style="width:10%;">I.V.A.</th>
-        <th style="width:14%;">Valor Total</th>
-        <th class="no-print" style="width:6%;"></th>
+        <th style="width:22%;">Categoría</th>
+        <th style="width:30%;">Detalle</th>
+        <th style="width:20%;">N° Boleta/Factura</th>
+        <th style="width:20%;">Valor</th>
+        <th class="no-print" style="width:8%;"></th>
       </tr>
     </thead>
     <tbody id="cuerpoGastos">
     </tbody>
     <tfoot>
       <tr class="subtotal-row">
-        <td colspan="5" style="text-align:right;padding-right:10px;">Subtotal Ítem</td>
+        <td colspan="3" style="text-align:right;padding-right:10px;">Subtotal Ítem</td>
         <td id="subtotal">0</td>
         <td class="no-print"></td>
       </tr>
     </tfoot>
   </table>
-  <div class="nota">Nota: Sólo los gastos CON FACTURA deben ir con I.V.A 19%</div>
 
   <div class="resumen">
     <div class="resumen-title">Resumen de Gastos</div>
@@ -749,29 +699,11 @@ function crearFila(glosaFija){
     <textarea ${glosaFija ? 'readonly' : ''}>${glosaFija || ''}</textarea>
 </td>
     <td><input type="text"></td>
-    <td><input type="number" class="neto" min="0" step="1" value="0" oninput="calcularFila(this)"></td>
-    <td class="iva-cell">
-      <select class="tasa-iva" onchange="calcularFila(this)">
-        <option value="0.19" selected>19%</option>
-        <option value="0">0% (sin IVA)</option>
-      </select>
-    </td>
-    <td class="readonly-cell"><input type="text" class="total" value="0" readonly></td>
+    <td><input type="number" class="neto" min="0" step="1" value="0" oninput="recalcular()"></td>
     <td class="row-actions no-print"><button onclick="eliminarFila(this)">×</button></td>
   `;
 
   document.getElementById('cuerpoGastos').appendChild(tr);
-}
-
-function calcularFila(el){
-  const tr = el.closest('tr');
-  const fmt = new Intl.NumberFormat('es-CL');
-  const neto = parseFloat(tr.querySelector('.neto').value) || 0;
-  const tasa = parseFloat(tr.querySelector('.tasa-iva').value) || 0;
-  const iva = Math.round(neto * tasa);
-  const total = neto + iva;
-  tr.querySelector('.total').value = fmt.format(total);
-  recalcular();
 }
 
 function agregarFila(){
@@ -785,11 +717,10 @@ function eliminarFila(btn){
 }
 
 function recalcular(){
-  const totales = document.querySelectorAll('#cuerpoGastos .total');
+  const valores = document.querySelectorAll('#cuerpoGastos .neto');
   let suma = 0;
-  totales.forEach(t=>{
-    const v = parseFloat((t.value || '0').toString().replace(/\./g,'').replace(',','.')) || 0;
-    suma += v;
+  valores.forEach(v=>{
+    suma += parseFloat(v.value) || 0;
   });
   const fmt = new Intl.NumberFormat('es-CL');
   document.getElementById('subtotal').textContent = fmt.format(suma);
@@ -881,6 +812,129 @@ function cambiarEmpresa(){
   recalcular();
 }
 
+// Centro de Costo: buscador propio (no usamos <datalist> porque el navegador
+// muestra el listado completo apenas se hace clic, y no queremos exponer
+// todos los clientes que manejamos a cualquiera que abra el formulario).
+// El personal solo ve el nombre (sin el código); el código va aparte en
+// #centroCostoCodigo (oculto) para que llegue igual a la planilla de respaldo.
+const CENTROS_COSTO = [
+  { codigo: "54", nombre: "COMERCIAL PORTIA LIMITADA" },
+  { codigo: "01", nombre: "EST AGLA S.A." },
+  { codigo: "61", nombre: "ESSITY CHILE S.A." },
+  { codigo: "348", nombre: "AVENCO ASESORÍA Y GESTIÓN INMOBILIARIA SPA" },
+  { codigo: "261", nombre: "EL GOLFO COMERCIAL S.A." },
+  { codigo: "36", nombre: "EMPRESAS DEMARIA S.A." },
+  { codigo: "341", nombre: "INMAR SPA" },
+  { codigo: "99", nombre: "MIGUEL MARITANO, IND. DE JABONES S.A." },
+  { codigo: "58", nombre: "VIÑA COUSIÑO MACUL" },
+  { codigo: "151", nombre: "COORDINADORES COMPARTIDOS" },
+  { codigo: "3", nombre: "MAR DEL SUR SPA" },
+  { codigo: "26", nombre: "LEVI STRAUSS CHILE LIMITADA" },
+  { codigo: "24", nombre: "LEVI STRAUSS CHILE LIMITADA (ADM)" },
+  { codigo: "25", nombre: "LEVI STRASS CHILE LIMITADA (DOCKERS)" },
+  { codigo: "312", nombre: "WOM S.A." },
+  { codigo: "313", nombre: "AGROCOMERCIAL CODIGUA SPA" },
+  { codigo: "118", nombre: "SHERWIN WILLIAMS CHILE S.A." },
+  { codigo: "289", nombre: "VIÑA VALDIVIESO S.A." },
+  { codigo: "20", nombre: "AISLANTES NACIONALES SPA" },
+  { codigo: "19", nombre: "CLOROX CHILE S.A." },
+  { codigo: "17", nombre: "HENKEL CHILE LTDA." },
+  { codigo: "16", nombre: "HENKEL CHILE LTDA. (GESTOR VENTAS)" },
+  { codigo: "100", nombre: "INDUSTRIA DE ALIMENTOS TRENDY S.A." },
+  { codigo: "225", nombre: "SURLAT COMERCIAL S.A." },
+  { codigo: "174", nombre: "INTCOMEX CHILE S.A." },
+  { codigo: "160", nombre: "AGUASIN SPA" },
+  { codigo: "337", nombre: "CHERY OMODA & JAECOO MOTOR SPA" },
+  { codigo: "236", nombre: "COMERCIAL DE CAMPO S.A." },
+  { codigo: "335", nombre: "DISTRIBUIDORA KOSLAN SPA" },
+  { codigo: "346", nombre: "FORUS S.A." },
+  { codigo: "333", nombre: "ICONEX (Chile) SpA." },
+  { codigo: "351", nombre: "LABORATORIOS MAVER S.A." },
+  { codigo: "365", nombre: "COMERCIAL KHATAR SPA" },
+  { codigo: "362", nombre: "AGRICOLA FUNGHI CHILE SPA" },
+  { codigo: "327", nombre: "FABRICA DE CHOCOLATES LA IBERICA S.A" },
+  { codigo: "344", nombre: "INTERNATIONAL APPAREL CORPORATION CHILE SPA" },
+  { codigo: "299", nombre: "THE NATURE FACTORY SPA" },
+  { codigo: "367", nombre: "IAC DOCKERS" },
+  { codigo: "332", nombre: "COMERCIALIZADORA ARENYS FOOD SPA" },
+  { codigo: "328", nombre: "LANDIROCD SPA" },
+  { codigo: "350", nombre: "RENNER SAYERLACK CHILE SPA" },
+  { codigo: "352", nombre: "NUTRICO.IO CHILE SPA" },
+  { codigo: "300", nombre: "FPC TISSUE S.A." },
+  { codigo: "358", nombre: "EMPORIO ALEMAN SA" },
+  { codigo: "349", nombre: "BARRON VIEYRA INTERNATIONAL SPA" },
+  { codigo: "355", nombre: "AWITA SPA" },
+  { codigo: "140", nombre: "COMERCIALIZADORA NOVAVERDE LTDA" },
+  { codigo: "290", nombre: "GARMENDIA MACUS S.A." },
+  { codigo: "315", nombre: "LABORATORIO DENTAID S.A." },
+  { codigo: "12", nombre: "SIGNIFY CHILENA S.A." },
+  { codigo: "172", nombre: "VERSUNI CHILE S.A." },
+  { codigo: "347", nombre: "YADATEX CHILE SPA" },
+  { codigo: "149", nombre: "PHILIPS CHILENA S.A." },
+  { codigo: "39", nombre: "PROA S.A." },
+  { codigo: "354", nombre: "DISTRIBUIDORA VERGIO SPA" },
+  { codigo: "178", nombre: "DITZLER CHILE LTDA." }
+];
+
+(function(){
+  const input = document.getElementById('centroCosto');
+  const inputCodigo = document.getElementById('centroCostoCodigo');
+  const lista = document.getElementById('centroCostoOpciones');
+  const MIN_CARACTERES = 2;
+
+  function mostrarOpciones(filtro){
+    const filtroNorm = filtro.trim().toLowerCase();
+
+    if(filtroNorm.length < MIN_CARACTERES){
+      lista.style.display = 'none';
+      lista.innerHTML = '';
+      return;
+    }
+
+    const coincidencias = CENTROS_COSTO.filter(c => c.nombre.toLowerCase().includes(filtroNorm));
+
+    lista.innerHTML = '';
+
+    if(!coincidencias.length){
+      lista.style.display = 'none';
+      return;
+    }
+
+    coincidencias.forEach(function(centro){
+      const opcion = document.createElement('div');
+      opcion.textContent = centro.nombre;
+      opcion.onmousedown = function(e){
+        e.preventDefault(); // evita que el input pierda foco antes del click
+        input.value = centro.nombre;
+        inputCodigo.value = centro.codigo;
+        lista.style.display = 'none';
+        actualizarMirrors();
+      };
+      lista.appendChild(opcion);
+    });
+
+    lista.style.display = 'block';
+  }
+
+  input.addEventListener('input', function(){
+    // Si escribe manualmente, el código ya no corresponde con certeza al texto
+    // hasta que elija de nuevo una opción de la lista.
+    inputCodigo.value = '';
+    mostrarOpciones(input.value);
+  });
+
+  // Al enfocar sin haber escrito nada, NO mostramos el listado completo.
+  input.addEventListener('focus', function(){
+    mostrarOpciones(input.value);
+  });
+
+  document.addEventListener('click', function(e){
+    if(e.target !== input){
+      lista.style.display = 'none';
+    }
+  });
+})();
+
 // Poblar años 2026-2050
 (function(){
   const sel = document.getElementById('anio');
@@ -897,9 +951,6 @@ crearFila('');
 crearFila('');
 crearFila('');
 crearFila('');
-document.querySelectorAll('#cuerpoGastos tr').forEach(tr=>{
-  calcularFila(tr.querySelector('.neto'));
-});
 recalcular();
 </script>
 
@@ -971,7 +1022,7 @@ function eliminarFactura(btn){
     btn.closest('.factura').remove();
 }
 
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyfYw90cTD5E8B3CX2MzgwBPftq1If2lr0n8tZL3rdFhYOqhsTztFS7GDN8_P2fee6R/exec";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbya0NuJ62i2Djk2Hq9FH9E-lAOfJReXKBx6E3OudHkbzKYqRZf59ZcPW0MJjyq8qw42CA/exec";
 
 function generarPdfDesdeFormulario(){
 
@@ -1111,13 +1162,7 @@ async function enviarFormulario(){
 
             documento: documento,
 
-            neto: neto,
-
-            iva: fila.querySelector(".tasa-iva").value == "0.19"
-                ? Math.round(neto * 0.19)
-                : 0,
-
-            total: fila.querySelector(".total").value.replace(/\./g,"")
+            neto: neto
 
         });
 
@@ -1158,6 +1203,8 @@ async function enviarFormulario(){
 
             centroCosto: document.getElementById("centroCosto").value,
 
+            centroCostoCodigo: document.getElementById("centroCostoCodigo").value,
+
             nombre: document.getElementById("nombre").value,
 
             rut: document.getElementById("rut").value,
@@ -1172,7 +1219,9 @@ async function enviarFormulario(){
 
             anticipo: document.getElementById("anticipo").value,
 
-            saldo: document.getElementById("saldo").textContent.replace(/\./g, ""),
+            saldo: document.getElementById("saldo").dataset.tipo === "sin_anticipo"
+                ? "0"
+                : document.getElementById("saldo").textContent.replace(/\./g, ""),
 
             tipoSaldo: document.getElementById("saldo").dataset.tipo || "",
 
